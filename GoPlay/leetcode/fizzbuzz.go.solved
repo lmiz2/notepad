@@ -1,0 +1,32 @@
+package main
+
+import (
+	"bytes"
+	"strconv"
+)
+
+const fizz = "Fizz"
+const buzz = "Buzz"
+
+func fizzBuzz(n int) []string {
+	stringArr := []string{}
+	for i := 1; i <= n; i++ {
+		isThreeComp := i%3 == 0
+		isFiveComp := i%5 == 0
+
+		if !isFiveComp && !isThreeComp {
+			stringArr = append(stringArr, strconv.FormatInt(int64(i), 10))
+			continue
+		} else {
+			var sb bytes.Buffer
+			if isThreeComp {
+				sb.WriteString(fizz)
+			}
+			if isFiveComp {
+				sb.WriteString(buzz)
+			}
+			stringArr = append(stringArr, sb.String())
+		}
+	}
+	return stringArr
+}

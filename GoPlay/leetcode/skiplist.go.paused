@@ -1,0 +1,151 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"strconv"
+	"time"
+)
+
+type RandomizedSet struct {
+	firstNode    *skipNode
+	lastNode     *skipNode
+	lastPointers []*skipPointer
+}
+
+type skipNode struct {
+	isInit      bool
+	nextByLevel []skipPointer
+	value       int
+}
+
+type skipPointer struct {
+	node *skipNode
+	span int
+	next *skipPointer
+}
+
+func (this *RandomizedSet) addSkipNode(value int) bool {
+	node := &skipNode{nextByLevel: []skipPointer{}, value: value, isInit: true}
+	if this.firstNode == nil && this.lastNode == nil {
+		node.nextByLevel = append(node.nextByLevel, skipPointer{node: node, span: 0, next: nil})
+		this.firstNode = node
+	} else {
+		spanLevel := getRandomLevel()
+		this.ensureSpanSize(spanLevel)
+		for i := 0; i < spanLevel; i++ {
+			node.nextByLevel = append(node.nextByLevel, skipPointer{node: node, span: 0, next: nil})
+		}
+		_, prev, next := this.firstNode.getClosestPrevAndNext(value)
+		if prev == next {
+			return false
+		} else if next == nil {
+			// 맨 마지막 위치에 추가
+			this.addToNextOf(node, prev)
+		} else {
+			// prev와 next 사이에 추가
+			this.addToBetweenOf(node, prev, next)
+		}
+	}
+	this.lastNode = node
+	return true
+}
+
+func (set *RandomizedSet) addToNextOf(this *skipNode, node *skipNode) {
+	for i, v := range this.nextByLevel {
+		if i < len(node.nextByLevel) {
+			node.nextByLevel[i].next = &v
+		} else {
+			set.lastPointers[i] = &v
+		}
+	}
+}
+
+func (set *RandomizedSet) addToBetweenOf(this *skipNode, prev *skipNode, next *skipNode) {
+	for i, v := range this.nextByLevel {
+		if i < len(prev.nextByLevel) {
+			prev.nextByLevel[i].next = &v
+		} else {
+			set.lastPointers[i] = &v
+		}
+	}
+	for i := range this.nextByLevel {
+		if i < len(next.nextByLevel) {
+			this.nextByLevel[i].next = &next.nextByLevel[i]
+		} else {
+			// this.nextByLevel[i].next =
+		}
+	}
+}
+
+func (this *RandomizedSet) ensureSpanSize(sizeTo int) {
+
+}
+
+func getRandomLevel() int {
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	rs := 1
+	for i := 0; i < 100; i++ {
+		num := r1.Intn(5)
+		if num != 0 {
+			break
+		}
+		rs++
+	}
+	return rs
+}
+
+func (this *skipNode) getClosestPrevAndNext(target int) (int, *skipNode, *skipNode) {
+	for i := len(this.nextByLevel) - 1; i >= 0; i-- {
+		nextPointed := this.nextByLevel[i]
+		if i > 0 {
+			if nextPointed.next != nil {
+				switch nextNode := nextPointed.next.node; {
+				case nextNode.value > target:
+					continue
+				case nextNode.value < target:
+					recSeq, prevNode, nextNode := nextNode.getClosestPrevAndNext(target)
+					recSeq += this.nextByLevel[i].span
+					return recSeq, prevNode, nextNode
+				case nextNode.value == target:
+					recSeq := this.nextByLevel[i].span
+					return recSeq, nextNode, nextNode
+				}
+			} else {
+				continue
+			}
+		} else {
+			if nextPointed.node != nil {
+				return this.nextByLevel[i].span, this, nextPointed.node
+			}
+
+		}
+	}
+	return -1, this, nil // means target is most bigest value
+}
+
+func (this *RandomizedSet) printSetInfo() {
+	fmt.Println()
+	var node skipNode = *this.firstNode
+	for node.isInit {
+		fmt.Println("value : " + strconv.Itoa(node.value))
+		fline := ""
+		sline := ""
+		for _, v := range node.nextByLevel {
+			fline += strconv.Itoa(v.span) + " "
+			sline += fmt.Sprint(v.next) + " "
+		}
+
+		if len(node.nextByLevel) > 0 && node.nextByLevel[0].next != nil {
+			node = *node.nextByLevel[0].next.node
+		} else {
+			node = skipNode{}
+		}
+		fmt.Println(fline)
+		fmt.Println("│")
+		fmt.Println("V")
+		fmt.Println(sline)
+
+	}
+}

@@ -1,0 +1,77 @@
+package main
+
+
+	//fmt.Println(topKFrequent([]int{1, 2}, 2))
+
+type numbCount struct {
+	number int
+	count  int
+}
+
+func topKFrequent(nums []int, k int) []int {
+	mem := make(map[int]int)
+	for _, v := range nums {
+		mem[v]++
+	}
+	rs := []int{}
+	odArr := []numbCount{}
+	for i, v := range mem {
+		odArr = add(odArr, numbCount{i, v})
+	}
+	for i := 0; i < k; i++ {
+		n := offer(&odArr)
+		rs = append(rs, n.number)
+	}
+	return rs
+}
+func add(arr []numbCount, obj numbCount) []numbCount {
+	arr = append(arr, obj)
+	arr = refresh(arr)
+	return arr
+}
+func refresh(arr []numbCount) []numbCount {
+	i := len(arr) - 1
+	for i > 0 && arr[i].count > arr[(i-1)/2].count {
+		swap(arr, i, (i-1)/2)
+		i = (i - 1) / 2
+	}
+	return arr
+}
+func deleteRefresh(arr []numbCount) []numbCount {
+	i := 0
+	for r, l := i*2+1, i*2+2; i < len(arr); r, l = i*2+1, i*2+2 {
+		target := -1
+		if r < len(arr) && l < len(arr) {
+			if arr[r].count > arr[l].count {
+				target = r
+			} else {
+				target = l
+			}
+		} else if r < len(arr) {
+			target = r
+		} else if l < len(arr) {
+			target = l
+		} else {
+			break
+		}
+		if arr[i].count < arr[target].count {
+			swap(arr, i, target)
+			i = target
+		} else {
+			break
+		}
+	}
+	return arr
+}
+func swap(arr []numbCount, i int, j int) {
+	tmp := arr[i]
+	arr[i] = arr[j]
+	arr[j] = tmp
+}
+func offer(arr *[]numbCount) numbCount {
+	rs := (*arr)[0]
+	(*arr)[0] = (*arr)[len(*arr)-1]
+	(*arr) = (*arr)[:len(*arr)-1]
+	(*arr) = deleteRefresh(*arr)
+	return rs
+}

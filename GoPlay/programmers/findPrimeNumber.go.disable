@@ -1,0 +1,73 @@
+package main
+
+import (
+	"math"
+	"strconv"
+)
+
+
+func main() {
+	fmt.Println(solution("1234567"))
+}
+
+func solution(numbers string) int {
+	arr := []int{}
+	for _, v := range numbers {
+		arr = append(arr, int(v)-48)
+	}
+	mem := make(map[int]int)
+	rsArr := make([]int, len(arr))
+	for i := range rsArr {
+		rsArr[i] = -1
+	}
+
+	permu(arr, 0, rsArr, mem)
+	return len(mem)
+}
+func permu(arr []int, rsIdx int, rsArr []int, mem map[int]int) {
+	num := intOf(rsArr)
+	if isPrime(num) {
+		mem[num] = 1
+	}
+	for i := range arr {
+		if arr[i] >= 0 {
+			tmp := arr[i]
+			arr[i] = -1
+			rsArr[rsIdx] = tmp
+			permu(arr, rsIdx+1, rsArr, mem)
+			arr[i] = tmp
+			rsArr[rsIdx] = -1
+		}
+	}
+}
+func intOf(rsArr []int) int {
+	str := ""
+	for _, v := range rsArr {
+		if v >= 0 {
+			s := strconv.Itoa(v)
+			str += s
+		}
+	}
+	n, err := strconv.Atoi(str)
+	if str == "" || err != nil {
+		return -1
+	}
+	return n
+}
+func isPrime(rs int) bool {
+	if rs <= 1 {
+		return false
+	} else if rs == 2 {
+		return true
+	} else if rs%2 == 0 {
+		return false
+	}
+
+	sqrt := int(math.Sqrt(float64(rs))) + 1
+	for i := 3; i <= sqrt; i += 2 {
+		if rs%i == 0 {
+			return false
+		}
+	}
+	return true
+}

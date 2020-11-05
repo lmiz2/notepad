@@ -1,0 +1,86 @@
+package main
+
+// func main() {
+// 	arr := []int{-500, -481, -480, -469, -437, -423, -408, -403, -397, -381, -379, -377, -353, -347, -337, -327, -313, -307, -299, -278, -265, -258, -235, -227, -225, -193, -192, -177, -176, -173, -170, -164, -162, -157, -147, -118, -115, -83, -64, -46, -36, -35, -11, 0, 0, 33, 40, 51, 54, 74, 93, 101, 104, 105, 112, 112, 116, 129, 133, 146, 152, 157, 158, 166, 177, 183, 186, 220, 263, 273, 320, 328, 332, 356, 357, 363, 372, 397, 399, 420, 422, 429, 433, 451, 464, 484, 485, 498, 499}
+// 	// arr := []int{1, 0, -1, 0, -2, 2}
+// 	fmt.Println(fourSum(arr, 0))
+// }
+
+func fourSum(nums []int, target int) [][]int {
+	tmpArr := make([]int, len(nums))
+	mergeSort(nums, 0, len(nums)-1, tmpArr)
+	return nSum(nums, target, 4)
+}
+func nSum(nums []int, target int, n int) [][]int {
+	rs := [][]int{}
+	if n == 2 {
+		return twoSum(nums, target)
+	}
+	for i := range nums {
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		for _, set := range nSum(nums[i+1:], target-nums[i], n-1) {
+			rs = append(rs, append([]int{nums[i]}, set...))
+		}
+	}
+	return rs
+}
+func twoSum(nums []int, target int) [][]int {
+	rs := [][]int{}
+	leftIdx, rightIdx := 0, len(nums)-1
+	for leftIdx < rightIdx {
+		if nums[leftIdx]+nums[rightIdx] > target || (rightIdx < len(nums)-1 && nums[rightIdx] == nums[rightIdx+1]) {
+			rightIdx--
+		} else if nums[leftIdx]+nums[rightIdx] < target || (leftIdx > 0 && nums[leftIdx] == nums[leftIdx-1]) {
+			leftIdx++
+		} else {
+			rs = append(rs, []int{nums[leftIdx], nums[rightIdx]})
+			rightIdx--
+			leftIdx++
+		}
+	}
+	return rs
+}
+
+func mergeSort(nums []int, left int, right int, tmpArr []int) {
+	if left < right {
+		mid := (left + right) / 2
+		mergeSort(nums, left, mid, tmpArr)
+		mergeSort(nums, mid+1, right, tmpArr)
+		merge(nums, left, right, mid, tmpArr)
+	}
+}
+func merge(nums []int, left int, right int, mid int, tmpArr []int) {
+	leftIdx, rightIdx := left, mid+1
+	tmpIdx := 0
+	for leftIdx <= mid && rightIdx <= right {
+		if nums[leftIdx] > nums[rightIdx] {
+			tmpArr[tmpIdx] = nums[rightIdx]
+			tmpIdx++
+			rightIdx++
+		} else if nums[leftIdx] <= nums[rightIdx] {
+			tmpArr[tmpIdx] = nums[leftIdx]
+			tmpIdx++
+			leftIdx++
+		}
+	}
+
+	if leftIdx <= mid {
+		for _, v := range nums[leftIdx : mid+1] {
+			tmpArr[tmpIdx] = v
+			tmpIdx++
+		}
+	}
+	if rightIdx <= right {
+		for _, v := range nums[rightIdx : right+1] {
+			tmpArr[tmpIdx] = v
+			tmpIdx++
+		}
+	}
+	numsIdx := left
+	for _, v := range tmpArr[:tmpIdx] {
+		nums[numsIdx] = v
+		numsIdx++
+	}
+}

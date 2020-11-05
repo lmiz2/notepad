@@ -1,0 +1,27 @@
+package main
+
+import (
+	"sort"
+)
+
+// func main() {
+// 	// arr := []int{1, 5, 1, 1, 6, 4}
+// 	arr := []int{1, 5, 5, 3, 2, 5, 5, 4, 5, 5}
+// 	wiggleSort(arr)
+// 	fmt.Println(arr)
+// }
+
+func wiggleSort(nums []int) {
+	tNums := make([]int, len(nums))
+	copy(tNums, nums)
+	sort.Ints(tNums)
+	i := len(tNums) - 1
+	for j := 1; j < len(nums); j += 2 {
+		nums[j] = tNums[i]
+		i--
+	}
+	for j := 0; j < len(nums); j += 2 {
+		nums[j] = tNums[i]
+		i--
+	}
+}

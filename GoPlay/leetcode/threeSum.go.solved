@@ -1,0 +1,43 @@
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+func threeSum(nums []int) [][]int {
+	sort.Ints(nums)
+	fmt.Println(nums)
+	return nSum(nums, 0, 3)
+}
+func nSum(nums []int, target int, n int) [][]int {
+	rs := [][]int{}
+	if n == 2 {
+		return twoSum(nums, target)
+	}
+	for i := range nums {
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		for _, nSet := range nSum(nums[i+1:], target-nums[i], n-1) {
+			rs = append(rs, append([]int{nums[i]}, nSet...))
+		}
+	}
+	return rs
+}
+func twoSum(nums []int, target int) [][]int {
+	rs := [][]int{}
+	left, right := 0, len(nums)-1
+	for left < right {
+		if nums[left]+nums[right] < target || (left > 0 && nums[left-1] == nums[left]) {
+			left++
+		} else if nums[left]+nums[right] > target || (right < len(nums)-1 && nums[right+1] == nums[right]) {
+			right--
+		} else {
+			rs = append(rs, []int{nums[left], nums[right]})
+			left++
+			right--
+		}
+	}
+	return rs
+}

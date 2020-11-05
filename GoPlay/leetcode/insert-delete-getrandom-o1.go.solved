@@ -1,0 +1,68 @@
+package main
+
+import (
+	"math/rand"
+	"time"
+)
+
+type RandomizedSet struct {
+	mem     map[int]bool
+	history []int
+}
+
+/** Initialize your data structure here. */
+func Constructor() RandomizedSet {
+	rtn := RandomizedSet{}
+	rtn.mem = make(map[int]bool)
+	rtn.history = []int{}
+	return rtn
+}
+
+/** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+func (this *RandomizedSet) Insert(val int) bool {
+	if this.mem[val] {
+		return false
+	}
+	this.mem[val] = true
+	this.history = append(this.history, val)
+	return true
+}
+
+/** Removes a value from the set. Returns true if the set contained the specified element. */
+func (this *RandomizedSet) Remove(val int) bool {
+	if this.mem[val] {
+		this.mem[val] = false
+		return true
+	}
+	return false
+}
+
+/** Get a random element from the set. */
+func (this *RandomizedSet) GetRandom() int {
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	contains := false
+	r := -1
+	limit := 100
+	for !contains && limit >= 0 {
+		r = r1.Intn(len(this.history))
+		contains = this.mem[this.history[r]]
+		limit--
+	}
+	if !contains {
+		for i, v := range this.mem {
+			if v {
+				return i
+			}
+		}
+	}
+	return this.history[r]
+}
+
+/**
+ * Your RandomizedSet object will be instantiated and called as such:
+ * obj := Constructor();
+ * param_1 := obj.Insert(val);
+ * param_2 := obj.Remove(val);
+ * param_3 := obj.GetRandom();
+ */
