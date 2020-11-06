@@ -46,7 +46,7 @@ type line struct {
 }
 
 func solution(n int, costs [][]int) int {
-	// maxBit := (1 << n) - 1
+	bitMask := 0
 	costMap := make([][]int, n)
 	nodes := make([]int, n)
 	lineArr := []line{}
@@ -64,6 +64,17 @@ func solution(n int, costs [][]int) int {
 	sort.Slice(lineArr, func(i, j int) bool {
 		return lineArr[i].value < lineArr[j].value
 	})
+	for i := range lineArr {
+		if bitMask&(1<<i) <= 0 {
+			nodes[lineArr[i].by] = i
+			nodes[lineArr[i].to] = i
 
+			bitMask = bitMask | (i << 1)
+		}
+	}
 	return -1
+}
+
+func makeSet() {
+
 }
