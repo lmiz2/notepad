@@ -1,0 +1,67 @@
+package main
+
+import (
+	"sort"
+)
+
+type line struct {
+	by    int
+	to    int
+	value int
+}
+
+func solution(n int, costs [][]int) int {
+	// maxBit := (1 << n) - 1
+	costMap := make([][]int, n)
+	nodes := make([]int, n)
+	lineArr := []line{}
+	for i := range costMap {
+		costMap[i] = make([]int, n)
+	}
+	for i := range nodes {
+		nodes[i] = i
+	}
+	for _, arr := range costs {
+		costMap[arr[0]][arr[1]] = arr[2]
+		costMap[arr[1]][arr[0]] = arr[2]
+		lineArr = append(lineArr, line{arr[0], arr[1], arr[2]})
+	}
+	sort.Slice(lineArr, func(i, j int) bool {
+		return lineArr[i].value < lineArr[j].value
+	})
+	sum := 0
+	for i := range lineArr {
+		x := lineArr[i].by
+		y := lineArr[i].to
+		if find(nodes, x, y) {
+			continue
+		} else {
+			sum = sum + lineArr[i].value
+			union(nodes, x, y)
+		}
+	}
+	return sum
+}
+
+func union(graph []int, a, b int) {
+	a = getParent(graph, a)
+	b = getParent(graph, b)
+	if a < b {
+		graph[b] = a
+	} else {
+		graph[a] = b
+	}
+
+}
+
+func find(graph []int, a, b int) bool {
+	return getParent(graph, a) == getParent(graph, b)
+}
+
+func getParent(graph []int, x int) int {
+	if x == graph[x] {
+		return x
+	}
+	graph[x] = getParent(graph, graph[x])
+	return graph[x]
+}
