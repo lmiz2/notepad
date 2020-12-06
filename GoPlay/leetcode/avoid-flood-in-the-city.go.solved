@@ -1,0 +1,73 @@
+package main
+
+func avoidFlood(rains []int) []int {
+	result := make([]int, len(rains))
+	state := make(map[int]int)
+	lastDryIdx := make(map[int]int)
+	for i, v := range rains {
+		if v > 0 {
+			if fullIdx, isFull := state[v]; isFull {
+				if len(lastDryIdx) == 0 {
+					return []int{}
+				}
+				ldi := -1
+				for nth, idv := range lastDryIdx {
+					if fullIdx < idv && v != nth {
+						ldi = idv
+						break
+					}
+				}
+				if ldi < 0 {
+					return []int{}
+				}
+
+				delete(state, v)
+				delete(lastDryIdx, ldi)
+				state[result[ldi]] = 0
+				for ii := ldi - 1; ii >= 0; ii-- {
+					if rains[ii] == result[ldi] {
+						state[result[ldi]] = ii
+						break
+					}
+				}
+				result[ldi] = v
+			} else {
+				state[v] = i
+				delete(lastDryIdx, v)
+			}
+			result[i] = -1
+		} else {
+			ramIdx := -1
+			for k, v := range state {
+				if v >= 0 {
+					ramIdx = k
+					break
+				}
+			}
+			if ramIdx == -1 {
+				result[i] = 1
+			} else {
+				result[i] = ramIdx
+				delete(state, ramIdx)
+				lastDryIdx[ramIdx] = i
+			}
+		}
+	}
+	return result
+}
+
+// func main() {
+// 	// arr := []int{1, 2, 3, 4, 5, 0, 5, 0, 2}
+// 	// arr := []int{1, 2, 3, 4}
+// 	// arr := []int{1, 2, 0, 0, 2, 1}
+// 	// arr := []int{69, 0, 0, 0, 69}
+// 	// arr := []int{1, 0, 2, 0, 2, 1}
+// 	arr := []int{1, 2, 0, 2, 3, 0, 1}
+// 	// arr := []int{1, 2, 3, 0, 0, 0, 1, 2, 3}
+// 	// arr := []int{2, 0, 2, 0, 2}
+// 	// arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+// 	// arr := []int{1, 2, 0, 1, 2, 0}
+// 	// arr := []int{3, 5, 4, 0, 1, 0, 1, 5, 2, 8, 9}
+// 	// avoidFlood(arr)
+// 	fmt.Println(avoidFlood(arr))
+// }
