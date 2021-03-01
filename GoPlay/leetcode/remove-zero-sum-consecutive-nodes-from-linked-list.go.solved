@@ -1,0 +1,63 @@
+package main
+
+/**
+ * Definition for singly-linked list.
+ * type ListNode struct {
+ *     Val int
+ *     Next *ListNode
+ * }
+ */
+/**
+
+func main() {
+
+	arr := []int{-1}
+	head := &ListNode{1, nil}
+	tmp := head
+	for i := 0; i < len(arr); i++ {
+		tmp.Next = &ListNode{arr[i], nil}
+		tmp = tmp.Next
+	}
+
+	newHead := removeZeroSumSublists(head)
+
+	tmp2 := newHead
+	fmt.Println(newHead)
+
+	for tmp2 != nil && tmp2.Next != nil {
+		tmp2 = tmp2.Next
+		fmt.Println(tmp2)
+	}
+
+}
+**/
+
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
+func removeZeroSumSublists(head *ListNode) *ListNode {
+	mem := make(map[int]*ListNode)
+	head = &ListNode{0, head}
+
+	tmp := head
+	sum := 0
+	for tmp != nil {
+		sum += tmp.Val
+		mem[sum] = tmp
+		tmp = tmp.Next
+	}
+	tmp = head
+	sum = 0
+	for tmp != nil {
+		sum += tmp.Val
+		if found, contains := mem[sum]; contains {
+			tmp.Next = found.Next
+			tmp = tmp.Next
+			continue
+		}
+	}
+
+	return head.Next
+}
